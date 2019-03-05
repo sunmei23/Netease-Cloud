@@ -166,8 +166,8 @@
           let tempObj = this.$store.getters.getPlayListById(id);
           if (typeof (tempObj) === 'undefined') {
             this.dataDownLoadFlag = false;
-            let url = api.getPlayListDetail(id);
-            this.$http(url).then((res)=>{
+            // let url = api.getPlayListDetail(id);
+            this.$http('/api/playList').then((res)=>{
               if (res.data.code === 200 ){
                 this.playListInfo = res.data.result;
                 this.$store.commit('addPlayList', this.playListInfo);
@@ -194,7 +194,6 @@
           }
           this.PScroll.on('scroll',(pos)=>{
             this.PScrollY = -pos.y;
-            console.log(this.PScrollY);
             this.height_1 = this.$refs.authorSite.getBoundingClientRect().top;
             this.height_2 = this.$refs.mainSite.getBoundingClientRect().top - this.navHeight;
             if (this.height_2 < 0){
