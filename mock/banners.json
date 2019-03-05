@@ -1,0 +1,95 @@
+{
+  "code": 200,
+  "banners": [
+    {
+      "picUrl": "http://p1.music.126.net/dq6Z3MsLiidACrFRaK0sFg==/109951163882521338.jpg",
+      "url": "/album?id=74879757",
+      "targetId": "74879757",
+      "backgroundUrl": "http://p1.music.126.net/tkYwd2KBbrc47Sli15gegQ==/109951163882529519.jpg",
+      "targetType": "10",
+      "monitorType": "",
+      "monitorImpress": "",
+      "monitorClick": ""
+    },
+    {
+      "picUrl": "http://p1.music.126.net/W_1SckZfVC-uu4n0HSVv-w==/109951163882530850.jpg",
+      "url": "/song?id=1347687051",
+      "targetId": "1347687051",
+      "backgroundUrl": "http://p1.music.126.net/H0kUxYLfKHzq_Hx_TMVfag==/109951163882539583.jpg",
+      "targetType": "1",
+      "monitorType": "",
+      "monitorImpress": "",
+      "monitorClick": ""
+    },
+    {
+      "picUrl": "http://p1.music.126.net/gfYkZBXzBjwteiCO0kVyvQ==/109951163882513302.jpg",
+      "url": "/song?id=1347529801",
+      "targetId": "1347529801",
+      "backgroundUrl": "http://p1.music.126.net/6ZA5PxBYjV9vWVBzOAr2tA==/109951163882517176.jpg",
+      "targetType": "1",
+      "monitorType": "",
+      "monitorImpress": "",
+      "monitorClick": ""
+    },
+    {
+      "picUrl": "http://p1.music.126.net/yU1P-URa8JYUjBj8DXd4Eg==/109951163885111034.jpg",
+      "url": "/album?id=75522629",
+      "targetId": "75522629",
+      "backgroundUrl": "http://p1.music.126.net/mkyLTBcwvnRqACKevmmScA==/109951163885099974.jpg",
+      "targetType": "10",
+      "monitorType": "",
+      "monitorImpress": "",
+      "monitorClick": ""
+    },
+    {
+      "picUrl": "http://p1.music.126.net/BM7Svze5coVI3D6NUUizkw==/109951163882527253.jpg",
+      "url": "/song?id=1347529297",
+      "targetId": "1347529297",
+      "backgroundUrl": "http://p1.music.126.net/wVHy5lEi3eNaECgSgh0nuw==/109951163882528704.jpg",
+      "targetType": "1",
+      "monitorType": "",
+      "monitorImpress": "",
+      "monitorClick": ""
+    },
+    {
+      "picUrl": "http://p1.music.126.net/ObAqrAkLXnoqaRxvr7V4GQ==/109951163883452548.jpg",
+      "url": "/song?id=1347134307",
+      "targetId": "1347134307",
+      "backgroundUrl": "http://p1.music.126.net/3UYPLOXEdOEEAg2cSZS5mw==/109951163883446727.jpg",
+      "targetType": "1",
+      "monitorType": "",
+      "monitorImpress": "",
+      "monitorClick": ""
+    },
+    {
+      "picUrl": "http://p1.music.126.net/M-QgsTyaGemncgQEAiFQTA==/109951163885078543.jpg",
+      "url": "/song?id=1346093140",
+      "targetId": "1346093140",
+      "backgroundUrl": "http://p1.music.126.net/5-hzudBGrR97WWOYUn62uA==/109951163885076112.jpg",
+      "targetType": "1",
+      "monitorType": "",
+      "monitorImpress": "",
+      "monitorClick": ""
+    },
+    {
+      "picUrl": "http://p1.music.126.net/pqRKgMX40X4ignfzdx2Scw==/109951163885073279.jpg",
+      "url": "https://music.163.com/m/at/5c6fc888db8e57fb8d39c333",
+      "targetId": "0",
+      "backgroundUrl": "http://p1.music.126.net/29mJuOEZYrSizcNcfGP9yw==/109951163885073284.jpg",
+      "targetType": "3000",
+      "monitorType": "",
+      "monitorImpress": "",
+      "monitorClick": ""
+    },
+    {
+      "picUrl": "http://p1.music.126.net/bRB062Dg_hC7xtZcZOpFhQ==/109951163885596873.jpg",
+      "url": "/song?id=1347437958",
+      "targetId": "1347437958",
+      "backgroundUrl": "http://p1.music.126.net/U15QWDYKSuZYY04jFTJ6Cw==/109951163885603629.jpg",
+      "targetType": "1",
+      "monitorType": "",
+      "monitorImpress": "",
+      "monitorClick": ""
+    }
+  ]
+}

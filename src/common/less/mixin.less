@@ -1,0 +1,28 @@
+.adapterFontSize(@index) when(@index >0){
+  @media (min-width: extract(@adapterDeviceList,@index)){
+    html{
+      font-size: @baseFontSize/@psdWidth * extract(@adapterDeviceList,@index);
+      color: @snColor;
+    }
+  };
+  .adapterFontSize(@index - 1);
+}
+.border-none{
+  &:after{
+    border-top: none;
+  }
+}
+.border-1px ( @color  ) {
+  position: relative;
+  &:after{
+    display: block;
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    width: 100%;
+    border-top: 1px solid @color;
+    content: '';
+  }
+}
+
+
