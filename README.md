@@ -25,4 +25,4 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 
 手机扫描查看：
 
-![Image text](https://github.com/sunmei23/Netease-Cloud/img-README/二维码.png)
+![Image text](https://raw.githubusercontent.com/sunmei23/Netease-Cloud/master/img-README/二维码.png)
