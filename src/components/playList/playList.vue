@@ -153,7 +153,6 @@
       },
       activated(){
         this.listProps = this.$route.params.data;
-        console.log( this.listProps);
           //是否需要请求数据，如果需要，并发送请求
         this.requestData(this.$route.params.id);
       },
@@ -174,8 +173,8 @@
                 this.$store.commit('addPlayList', this.playListInfo);
                 this.dataDownLoadFlag = true;
               }
-            }).catch(()=>{
-
+            }).catch((err)=>{
+              console.log(err);
             })
           }else{
             this.playListInfo = tempObj;
@@ -198,7 +197,6 @@
             console.log(this.PScrollY);
             this.height_1 = this.$refs.authorSite.getBoundingClientRect().top;
             this.height_2 = this.$refs.mainSite.getBoundingClientRect().top - this.navHeight;
-            console.log(this.topHeight);
             if (this.height_2 < 0){
               this.opacityRate = 1;
             }else if (this.PScrollY <= 0) {

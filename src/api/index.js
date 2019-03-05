@@ -1,4 +1,4 @@
-const _baseUrl = 'https://120.79.162.149:3000'
+const _baseUrl = 'http://120.79.162.149:3000'
 const _baseUrl2 = 'https://api.imjad.cn/cloudmusic/'
 export default {
   /**
