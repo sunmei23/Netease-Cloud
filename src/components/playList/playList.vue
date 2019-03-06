@@ -11,7 +11,11 @@
               <i class="dot"></i>
             </span>
         </div>
-        <div class="nav-bg" ref="navBg"></div>
+        <div class="nav-bg-wrapper">
+          <div class="nav-bg" ref="navBg">
+            <img :src="listProps.picUrl" class="nav-img">
+          </div>
+        </div>
       </nav>
       <div class="header-fixed" v-show="height_2 < 0">
         <div class="header-content">
@@ -142,6 +146,7 @@
       created(){
          //获得歌单id 请求数据
         let id = this.$route.params.id;
+        this.listProps = this.$route.params.data;
         this.requestData(id);
         this.$nextTick(()=>{
           this.initPlayListScroll();
@@ -258,15 +263,25 @@
         }
       }
     }
-    .nav-bg{
+    .nav-bg-wrapper{
       position: absolute;
       left: 0;
       top: 0;
       width: 100%;
-      height: 100%;
-      background-color: @snColor;
+      height:100%;
+      overflow: hidden;
       z-index: -1;
-      opacity: 0;
+      .nav-bg{
+        width: 200%;
+        height:200%;
+        filter: blur(30px);
+        margin: -30px;
+        opacity: 0;
+        .nav-img{
+          width: 100%;
+          height: 5.4rem;
+        }
+     }
     }
   }
   .header-fixed{
@@ -277,7 +292,7 @@
     z-index: 1;
     text-align: left;
     height: 0.8rem;
-    background-color: @snColor;
+    //background-color: @snColor;
     .header-content{
       width: 100%;
       height: 1rem !important;
@@ -328,7 +343,7 @@
           width: 100%;
           height: 200%;
           z-index: -2;
-          background-color: rgba(0,0,0,.3);
+          /*background-color: rgba(0,0,0,.3);*/
           filter: blur(20px);
           .img{
             width: 100%;
@@ -342,7 +357,7 @@
           width: 100%;
           height: 200%;
           z-index: -1;
-          background-color: rgba(0,0,0,.3);
+          /*background-color: rgba(0,0,0,.3);*/
         }
         .center-wrapper{
           height: 2.8rem;
