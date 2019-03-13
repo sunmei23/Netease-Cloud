@@ -46,7 +46,7 @@ export default new Router({
         {
           path: 'hotSinger',
           name: 'hotSinger',
-          components: HotSinger,
+          component: HotSinger,
           meta:{
             index:2
           }
