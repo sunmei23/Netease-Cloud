@@ -3,17 +3,16 @@
     <div id="playList" ref="playList">
       <nav class="nav" ref="nav">
         <span class="ele-icon-arrow_lift goBack" @click="goBack"></span>
-        <span class="center"><i v-if="height_1 < 0">{{listProps.name}}</i><i v-else>歌单</i></span>
+        <span class="center"><i v-if="height_1 < 0">{{(listProps&&listProps.name) || playListInfo.name}}</i><i v-else>歌单</i></span>
         <div class="right">
             <span class="more">
-              <i class="dot"></i>
               <i class="dot"></i>
               <i class="dot"></i>
             </span>
         </div>
         <div class="nav-bg-wrapper">
           <div class="nav-bg" ref="navBg">
-            <img :src="listProps.picUrl" class="nav-img">
+            <img :src="(listProps&&listProps.coverImgUrl+'?param=400y400') || playListInfo.coverImgUrl+'?param=400y400'" class="nav-img">
           </div>
         </div>
       </nav>
@@ -24,7 +23,7 @@
           </div>
           <div class="song border-1px">
             <span class="name">播放全部</span>
-            <span class="count">(共{{listProps.trackCount}}首)</span>
+            <span class="count">(共{{(listProps&&listProps.trackCount) || playListInfo.trackCount}}首)</span>
             <span class="collect"></span>
           </div>
         </div>
@@ -33,18 +32,18 @@
         <div class="playList-content">
           <div class="listDes-wrapper" ref="listDes">
             <div class="bg">
-              <img :src="listProps.picUrl" class="img">
+              <img :src="(listProps&&listProps.coverImgUrl+'?param=400y400') || playListInfo.coverImgUrl+'?param=400y400'" class="img">
             </div>
             <div class="bg2"></div>
             <div class="center-wrapper">
               <div class="center-left">
-                <img class="small-img" :src="listProps.picUrl"/>
-                <span class="count"><span class="icon-headphones"></span>{{listProps.playCount | playCountTransform()}}</span>
+                <img class="small-img" :src="(listProps&&listProps.coverImgUrl+'?param=400y400') || playListInfo.coverImgUrl+'?param=400y400'"/>
+                <span class="count"><span class="icon-headphones"></span> {{(listProps&&listProps.playCount || playListInfo.playCount) | playCountTransform()}}</span>
               </div>
               <div class="center-right">
-                <div class="title" ref="authorSite">{{listProps.name}}</div>
+                <div class="title" ref="authorSite">{{listProps&&listProps.name || playListInfo.name}}</div>
                 <div class="author">
-                  <span class="avatar"><img :src="playListInfo.creator.backgroundUrl"></span>
+                  <span class="avatar"><img :src="playListInfo.creator.backgroundUrl+'?param=200y200'"></span>
                   <span class="name">{{playListInfo.creator.nickname}}</span>
                 </div>
               </div>
@@ -75,7 +74,7 @@
               </div>
               <div class="song border-1px">
                 <span class="name">播放全部</span>
-                <span class="count">(共{{listProps.trackCount}}首)</span>
+                <span class="count">(共{{playListInfo.trackCount}}首)</span>
                 <span class="collect"></span>
               </div>
             </div>
@@ -85,19 +84,21 @@
                 <div class="Number">{{index+1}}</div>
                 <div class="song" :class="(index == playListInfo.tracks.length-1) ?'border-none':'border-1px'">
                   <div class="right">
-                    <span class="icon-play2"></span>
+                    <!--<span class="icon-play2"></span>-->
                     <span class="more">
                   <i class="dot"></i>
                   <i class="dot"></i>
                   <i class="dot"></i>
                 </span>
                   </div>
-                  <div class="left">
-                    <div class="song-name"><span class="name">{{song.name}}</span><span class="alias" v-if="song.alias.length > 0"> ({{song.alias[0]}})</span></div>
-                    <div class="singer">
-                      <span v-for="(singer,index) in song.artists">{{singer.name}}<i v-if="index != song.artists.length - 1"> / </i></span>
-                      <span> - {{song.album.name}}</span>
-                    </div>
+                  <div class="left" @click="selectPlay({list:playListInfo.tracks,index:index})">
+                    <router-link :to="{name:'playMusic',params:{musicId:song.id}}">
+                      <div class="song-name"><span class="name">{{song.name}}</span><span class="alias" v-if="song.alias && song.alias.length > 0"> ({{song.alias[0]}})</span></div>
+                      <div class="singer">
+                        <span v-for="(singer,index) in song.ar">{{singer.name}}<i v-if="index != song.ar.length - 1"> / </i></span>
+                        <span> - {{song.al.name}}</span>
+                      </div>
+                    </router-link>
                   </div>
                 </div>
               </li>
@@ -111,6 +112,7 @@
 
 <script>
   import api from '../../api/index.js'
+  import {mapActions,mapMutations} from 'vuex';
   import BScroll from 'better-scroll'
     export default {
         name: "playList",
@@ -123,7 +125,7 @@
               }
             },
             dataDownLoadFlag:false,
-            listProps: {},
+            listProps: null,
             PScroll:null,
             PScrollY:0,
             height_1:0,
@@ -134,8 +136,8 @@
           }
         },
       watch: {
-        $route(to) {
-          if (to.meta.index === 3) {//重新进入刷新数据
+        $route(to,from) {
+          if (to.meta.index === 3 && from.meta.index === 0) {//重新进入刷新数据
             this.listProps = this.$route.params.data;
           }
         },
@@ -147,7 +149,6 @@
          //获得歌单id 请求数据
         let id = this.$route.params.id;
         this.listProps = this.$route.params.data;
-        this.requestData(id);
         this.$nextTick(()=>{
           this.initPlayListScroll();
         });
@@ -157,13 +158,23 @@
           this.topHeight = this.$refs.listDes.getBoundingClientRect().height;
       },
       activated(){
-        this.listProps = this.$route.params.data;
+        // this.listProps = this.$route.params.data;
+        this.height_1 = this.$refs.authorSite.getBoundingClientRect().top;
+        this.height_2 = this.$refs.mainSite.getBoundingClientRect().top - this.navHeight;
+        if (this.PScroll) {
+          this.PScroll.refresh();
+        }
           //是否需要请求数据，如果需要，并发送请求
         this.requestData(this.$route.params.id);
       },
-      computed:{
-      },
       methods:{
+        ...mapActions([
+          'selectPlay'
+        ]),
+        ...mapMutations([
+          'SET_PLAYLIST',
+          'SET_CURRENT_INDEX'
+        ]),
         goBack(){
           this.$router.go(-1);
         },
@@ -172,9 +183,12 @@
           if (typeof (tempObj) === 'undefined') {
             this.dataDownLoadFlag = false;
             // let url = api.getPlayListDetail(id);
-            this.$http('/api/playList').then((res)=>{
+            // let url = `https://api.bzqll.com/music/netease/songList?key=579621905&id=${id}&limit=10&offset=0`;
+            this.$http(api.getPlayListDetail(id)).then((res)=>{
               if (res.data.code === 200 ){
-                this.playListInfo = res.data.result;
+                this.playListInfo = res.data.playlist;
+                //因为歌单数据固定一份 id都一样，手动更改id
+                // this.playListInfo.id = id;
                 this.$store.commit('addPlayList', this.playListInfo);
                 this.dataDownLoadFlag = true;
               }
@@ -292,7 +306,7 @@
     z-index: 1;
     text-align: left;
     height: 0.8rem;
-    //background-color: @snColor;
+    background-color: #e8e8e8;
     .header-content{
       width: 100%;
       height: 1rem !important;
@@ -317,7 +331,7 @@
     }
     .song {
       flex: 1;
-      .border-1px(rgba(0, 0, 0, .2));
+      .border-1px(#fafafa);
       .name{
         font-weight: 600;
       }
@@ -343,8 +357,7 @@
           width: 100%;
           height: 200%;
           z-index: -2;
-          /*background-color: rgba(0,0,0,.3);*/
-          filter: blur(20px);
+          filter: blur(100px);
           .img{
             width: 100%;
             height: 100%;
@@ -357,7 +370,7 @@
           width: 100%;
           height: 200%;
           z-index: -1;
-          /*background-color: rgba(0,0,0,.3);*/
+          background-color: rgba(0,0,0,.3);
         }
         .center-wrapper{
           height: 2.8rem;
@@ -431,7 +444,7 @@
       }
       .main-playlist {
         background-color: #fff;
-        border-radius: 0.4rem;
+        border-radius: 0.4rem 0.4rem 0rem 0rem;
         width: 100%;
         padding: 0.2rem;
         text-align: left;
@@ -470,7 +483,7 @@
               flex: 1;
               overflow: hidden;
               &.border-1px{
-                .border-1px(rgba(0, 0, 0, .2));
+                .border-1px(#fafafa);
               }
               &.border-none{
                 .border-none();
@@ -485,9 +498,10 @@
                   white-space: nowrap;
                   overflow: hidden;
                   padding-bottom: 0.1rem;
-                  .name{
-                    font-weight: 600;
-                  }
+                  color: #595959;
+                  /*.name{*/
+                    /*font-weight: 600;*/
+                  /*}*/
                   .alias{
                     color: #666;
                   }
@@ -495,10 +509,11 @@
                 .singer{
                   display: inline-block;
                   width: 100%;
-                  font-size: 0.28rem;
+                  font-size: 0.24rem;
                   overflow: hidden;
                   text-overflow: ellipsis;
                   white-space: nowrap;
+                  color: #bfbfbf;
                   span{
                     text-overflow: ellipsis;
                     overflow: hidden;
@@ -509,7 +524,7 @@
               .right {
                 line-height: 1.2rem ;
                 float: right;
-                width: 1.5rem;
+                width: 0.5rem;
                 height: 100%;
                 color: #666;
                 margin-left: 0.2rem;
@@ -518,13 +533,16 @@
                   padding-right: 0.2rem;
                 }
                 .more {
+                  padding-top: 0.4rem;
                   font-size: 0.32rem;
+                  display: block;
+                  color: #595959;
                   .dot {
-                    display: inline-block;
+                    display: block;
                     width: 0.08rem;
                     height: 0.08rem;
                     border-radius: 50%;
-                    padding-right: 0.08rem;
+                    margin-bottom: 0.08rem;
                     background-color: #666;
                   }
                 }

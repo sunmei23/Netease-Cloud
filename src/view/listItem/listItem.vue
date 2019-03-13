@@ -3,7 +3,7 @@
       <div class="number">
         <div class="number-val">{{playlist.playCount | playCountTransform()}}</div>
       </div>
-      <img class="img" v-lazy="playlist.picUrl" />
+      <img class="img" v-lazy="playlist.coverImgUrl + '?param=400y400'" />
       <div class="title">{{playlist.name}}</div>
     </div>
 </template>

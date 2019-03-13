@@ -4,7 +4,7 @@
         <nt-header></nt-header>
         <div class="link-tab-wrapper">
           <div class="link-wrapper">
-            <router-link :to="{name:'nowHot'}">当下热门</router-link>
+            <router-link :to="{name:'nowHot'}">推荐</router-link>
             <router-link :to="{name:'top'}">排行榜</router-link>
             <router-link :to="{name:'hotSinger'}">热门歌手</router-link>
           </div>
@@ -37,7 +37,6 @@
           </keep-alive>
         </div>
       </div>
-        <!--<nt-footer></nt-footer>-->
     </div>
 </template>
 

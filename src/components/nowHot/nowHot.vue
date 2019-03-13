@@ -8,10 +8,13 @@
         <div v-if=swiperSlides.length class="banner-wrapper">
           <swiper :options="swiperOption" ref="mySwiper">
             <swiper-slide v-for="(slide,index) in swiperSlides" :key="index">
-              <a href="javascript:void(0);" class="banner-item" >
+              <router-link class="banner-item" :to="{name:'playMusic',params:{musicId:slide.targetId}}">
                 <img :src="slide.picUrl" class="banner-img" v-if="index===0 || index===swiperSlides.length-1"/>
-                <img v-else v-lazy="slide.picUrl" class="banner-img" />
-              </a>
+                <div v-lazy-container="{ selector: 'img' }" v-else>
+                  <img  :data-src="slide.picUrl+'?param=710y330'" class="banner-img"  data-loading="static/image_335x175.png"
+                        data-error="static/image_335x175.png"/>
+                </div>
+              </router-link>
             </swiper-slide>
             <div class="swiper-pagination" slot="pagination"></div>
           </swiper>
@@ -43,12 +46,14 @@
             </div>
             <div class="mv-content-wrapper">
               <div class="mv-content" v-for="songitem in recommendSongLists" :key="songitem.id">
-                <img v-lazy="songitem.song.album.picUrl" class="mv-img">
+                <router-link :to="{name:'playMusic',params:{musicId:songitem.id}}">
+                <img v-lazy="songitem.song.album.picUrl+'?param=400y400'" class="mv-img">
                 <div class="mv-name">{{songitem.name}}</div>
                 <div class="mv-singer">
                   <span v-for="(singer,index) in songitem.song.artists" :key="singer.id">{{singer.name}}
                     <i class="split" v-if="index !== songitem.song.artists.length -1"> / </i></span>
                 </div>
+                </router-link>
               </div>
             </div>
           </section>
@@ -104,12 +109,11 @@
           },
         update(newOld){
           if (newOld){//更新数据 重新发送Ajax请求
-            Promise.all([this.$http.get('/api/banners'),this.$http.get('/api/personalized'),
-              this.$http.get('/api/newsong')]).then((lists)=>{
+            Promise.all([this.$http.get(api.getBannerList()),this.$http.get(api.getPersonalized()),
+              this.$http.get(api.getPersonalizedSong())]).then((lists)=>{
               this.swiperSlides = lists[0].data.banners;
-              // this.swiper.slideTo(1);
               this.swiper.slideNext();
-              this.recommendPlayLists = lists[1].data.result.slice(0,12);
+              this.recommendPlayLists = lists[1].data.playlists;
               this.recommendSongLists = lists[2].data.result;
               this.$root.eventHub.$emit('answerUpdateResult', true);
             }).catch((err)=>{
@@ -125,10 +129,11 @@
         }
       },
       created(){
-        Promise.all([this.$http.get('/api/banners'),this.$http.get('/api/personalized'),
-          this.$http.get('/api/newsong')]).then((lists)=>{
+        Promise.all([this.$http.get(api.getBannerList()),this.$http.get(api.getPersonalized()),
+          this.$http.get(api.getPersonalizedSong())]).then((lists)=>{
           this.swiperSlides = lists[0].data.banners;
-          this.recommendPlayLists = lists[1].data.result.slice(0,12);
+          console.log(this.swiperSlides);
+          this.recommendPlayLists = lists[1].data.playlists;
           this.recommendSongLists = lists[2].data.result;
           this.loadingFlag = false;
         }).catch((err)=>{

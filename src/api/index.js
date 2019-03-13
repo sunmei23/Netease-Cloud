@@ -1,5 +1,5 @@
-const _baseUrl = 'http://120.79.162.149:3000'
-const _baseUrl2 = 'https://api.imjad.cn/cloudmusic/'
+const _baseUrl = 'https://musicapi.leanapp.cn'
+// const _baseUrl2 = 'https://api.imjad.cn/cloudmusic/'
 export default {
   /**
    * 获取首页Banner图片数据
@@ -11,7 +11,7 @@ export default {
    * 获取推荐歌单
    */
   getPersonalized () {
-    return `${_baseUrl}/personalized`
+    return `${_baseUrl}/top/playlist?limit=12&order=hot`
   },
   /**
    * 获取推荐歌单
@@ -62,5 +62,13 @@ export default {
   },
   search (words) {
     return _baseUrl2 + '?type=search&s=' + words
+  },
+    /*
+  获取歌曲详情
+  @param {Number} id
+   */
+  getSongDetail (id) {
+    return `${_baseUrl}/song/detail?ids=${id}`
   }
 }
+

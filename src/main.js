@@ -16,8 +16,8 @@ import {sleep,getFontSize} from './common/js/utils'
 
 Vue.use(VueX);
 Vue.use(VueLazyload,{
-  error:'./static/error.jpg',
-  loading:'./static/loading.gif'
+  error:'./static/image_177x177.png',
+  loading:'./static/image_177x177.png'
 });
 // Axios.defaults.headers.common['Origin']= 'http://ser.caijin.tech:3002'
 // Axios.defaults.headers.common['Referer']= 'http://ser.caijin.tech:3002/'
@@ -27,12 +27,15 @@ Vue.prototype.sleep = sleep;
 Vue.prototype.getFontSize = getFontSize;
 
 Vue.filter('playCountTransform',function (counts) {
+    if (typeof(counts) === "undefined") {
+      return 0;
+    }
    if (counts > 10000){
      return Math.floor(counts/10000) + '万';
    } else{
      return counts;
    }
-})
+});
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

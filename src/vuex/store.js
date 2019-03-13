@@ -1,23 +1,33 @@
 import Vue from 'vue'
 import VueX from 'vuex'
+import player from './modules/player'
 Vue.use(VueX);
 
-const store = new VueX.Store({
-  state:{
-    playListArr:[]
+const state = {
+  playListArr:[]
+};
+const getters = {
+  getPlayListById: (state) => (id) => {
+    return state.playListArr.find(list => {
+      // return list.songListId == id;
+      return list.id == id;
+    });
   },
-  getters:{
-    getPlayListById: (state) => (id) => {
-      return state.playListArr.find(list => list.id === id);
-    },
-    getAllList:(state) => {
-      return state.playListArr;
-    }
-  },
-  mutations:{
-    addPlayList(state,list){
-      state.playListArr.push(list);
-    }
+  getAllList:(state) => {
+    return state.playListArr;
+  }
+};
+const mutations = {
+  addPlayList(state,list){
+    state.playListArr.push(list);
+  }
+};
+
+export default new VueX.Store({
+  state,
+  getters,
+  mutations,
+  modules:{
+    player
   }
 })
-export default store

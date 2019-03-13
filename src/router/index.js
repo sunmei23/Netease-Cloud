@@ -6,6 +6,7 @@ import Top from '../components/top/top.vue'
 import HotSinger from '../components/hotSinger/hotSinger.vue'
 import PlayList from '../components/playList/playList.vue'
 import Home from '../components/Home.vue'
+import PlayMusic from '../components/playMusic/playMusic'
 
 Vue.use(Router)
 
@@ -15,7 +16,10 @@ export default new Router({
   routes: [
     {
       path:'/',
-      component:Home,
+      components:{
+        default:Home,
+        music:PlayMusic
+      },
       children:[
         {
           path:'/',
@@ -42,7 +46,7 @@ export default new Router({
         {
           path: 'hotSinger',
           name: 'hotSinger',
-          component: HotSinger,
+          components: HotSinger,
           meta:{
             index:2
           }
@@ -52,9 +56,23 @@ export default new Router({
     {
       path: "/playList/:id",
       name:"playList",
-      component:PlayList,
+      components: {
+        default: PlayList,
+        music:PlayMusic
+      },
       meta:{
         index:3
+      }
+    },
+    {
+      path: "/playMusic/:musicId",
+      name:"playMusic",
+      components:{
+        default:null,
+        music:PlayMusic
+      },
+      meta:{
+        index:4
       }
     }
   ]
