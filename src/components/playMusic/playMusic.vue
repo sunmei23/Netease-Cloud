@@ -24,14 +24,33 @@
             <div class="right"></div>
           </nav>
           <div class="middle" :class="{'showImg': !showLyric}" @click="_toggleLyric">
-            <div class="show-img-wrapper" v-show="!showLyric">
-              <div class="img-wrapper" :class="playing ? 'running': 'pause'">
-                <img :src="currentSong.al&&currentSong.al.picUrl+'?param=400y400'" class="img">
+            <message-alert :isShow="isShowAlert" :message="alertMessage" :fadeOutDuration="3000"
+                           @unShow="changeAlertFlag(false)"></message-alert>
+            <div class="show-img-wrapper" :class="showLyric ? 'hide':'show'">
+              <div class="img-wrapper" >
+                <img :src="currentSong.al&&currentSong.al.picUrl+'?param=400y400'" class="img"
+                     :class="playing ? 'running': 'pause'">
+              </div>
+              <!--显示当前歌词-->
+              <div class="currentLyric">
+                <div v-if="currentLyric && lyricState===0">{{currentLineLyric}}</div>
+                <div v-else class="lyric-error">
+                  <span v-show="lyricState===1">纯音乐,没有歌词</span>
+                  <span v-show="lyricState===2">未找到歌词</span>
+                  <span v-show="lyricState===3">请求歌词失败</span>
+                </div>
               </div>
             </div>
-            <div class="show-lyric-wrapper" v-show="showLyric">
-              <lyric-scroll :lyric-lines="currentLyric && currentLyric.lines" :current-time="currentTime"
-                            @changeCurrentTime="_setCurrentTime"></lyric-scroll>
+            <div class="show-lyric-wrapper" :class="showLyric ? 'show':'hide'">
+              <div v-if="lyricState===0" class="lyric-ok">
+                <lyric-scroll :lyric-lines="currentLyric && currentLyric.lines" :current-line="currentLine"
+                              @changeCurrentTime="_setCurrentTime"></lyric-scroll>
+              </div>
+              <div v-if="lyricState!==0" class="lyric-error">
+                <span v-show="lyricState===1">纯音乐,没有歌词</span>
+                <span v-show="lyricState===2">未找到歌词</span>
+                <span v-show="lyricState===3">请求歌词失败</span>
+               </div>
             </div>
           </div>
           <div class="bottom">
@@ -81,21 +100,22 @@
       </div>
       <audio :src="mp3Src || (currentSong && currentSong.url)" ref="audio" autoplay @canplay="ready" @error="error"
              @play="play" @timeupdate="updateTime" @ended="end"></audio>
-      <play-list @hidePlayList="togglePlayList" @emptyList="goBack" :isShow="showPlayListFlag"></play-list>
+      <play-list @hidePlayList="togglePlayList" @emptyList="goBack" :isShow="showPlayListFlag" ></play-list>
     </div>
 </template>
 
 <script>
   import {mapGetters,mapMutations} from 'vuex';
-  import {playMode} from '../../common/js/config.js';
+  import {playMode,lyricStates} from '../../common/js/config.js';
   import progressBar from '../../view/progressBar/progressBar';
   import lyricScroll from '../../view/lyricScroll/lyricScroll';
   import playList from '../../view/playList/playList';
   import Lyric from 'lyric-parser'
   import api from '../../api/index'
+  import MessageAlert from '../../view/messageAlert/messageAlert'
     export default {
         name: "playMusic",
-      components:{progressBar,lyricScroll,playList},
+      components:{progressBar,lyricScroll,playList,MessageAlert},
       data(){
           return{
             showLyric:false,
@@ -103,12 +123,20 @@
             audio:{},
             currentTime:0,
             currentLyric:null,
+            currentLine:0,
+            currentLineLyric:'',
+            playPercent:0,
             musicId:null,
-            showPlayListFlag:false
+            showPlayListFlag:false,
+            lyricState:lyricStates.NORMAL,
+            isShowAlert:false,
+            alertMessage:'',
+            audioErrorFlag:false
           }
       },
       created(){
         console.log("created");
+        this.requestData(this.$route.params.musicId);
           this.$nextTick(()=> {
             //请求数据
             document.addEventListener("visibilitychange", function () {
@@ -138,11 +166,9 @@
           'currentIndex',
           'mode',
           'idIsHas',
-          'currentSongId'
-        ]),
-        playPercent(){
-          return this.currentTime / (this.currentSong.dt/1000);
-        }
+          'currentSongId',
+          'currentLyricLine'
+        ])
       },
       watch: {
           currentSong:{
@@ -162,15 +188,36 @@
               return;
             }
           this.changeRouter(newVal);
-          console.log("请求数据");
-          this.requestData(newVal);
+          this.audioErrorFlag = false;
+
         },
         playing(newVal){
           this.audio = this.$refs.audio;
            this.$nextTick(()=>{
-             newVal ? this.audio.play(): this.audio.pause()
+             if (this.audioErrorFlag) {
+               this.audio.load();
+               this.audioErrorFlag = false;
+             }else{
+               newVal ? this.audio.play(): this.audio.pause()
+             }
            })
         },
+        currentTime(newVal){
+          this.playPercent = newVal / (this.currentSong.dt/1000);
+          if (this.currentLyric){
+            let len = this.currentLyric.lines.length;
+            for (let i=0; i< len; i++){
+              if (i===len-1){
+                if (newVal >= this.currentLyric.lines[i].time/1000) {
+                  this.currentLine = i;
+                }
+              }else if(newVal >= this.currentLyric.lines[i].time/1000 && newVal < this.currentLyric.lines[i+1].time/1000){
+                this.currentLine = i;
+              }
+            }
+            this.currentLineLyric = this.currentLyric.lines[this.currentLine].txt;
+          }
+        }
       },
       methods:{
         ...mapMutations([
@@ -210,9 +257,6 @@
           this._getLyric(id);
         },
         _handleLyric(){
-          if (this.playing) {
-            this.currentLyric.play();
-          }
         },
         _getMusicMp3(id){
           // this.$http.get(`https://api.bzqll.com/music/netease/url?key=579621905&id=${id}&br=999000`)
@@ -228,9 +272,22 @@
           // this.$http.get(`https://api.bzqll.com/music/netease/lrc?key=579621905&id=${id}`)
           this.$http.get(api.getLrc(id))
             .then((res=>{
-              const lyric = res.data.lrc.lyric;
-              this.currentLyric = new Lyric(lyric,this._handleLyric);
+              if (typeof(res.data.lrc) === "undefined"){//歌词不存在
+                this.lyricState = lyricStates.NOTEXIST;
+              }else{
+                const lyric = res.data.lrc.lyric;
+                this.currentLyric = new Lyric(lyric,this._handleLyric);
+                if (this.currentLyric.lines.length === 0){
+                  this.lyricState = lyricStates.NOTFIND;
+                }else{
+                  this.lyricState = lyricStates.NORMAL;
+                  if (this.playing) {
+                    this.currentLyric.play();
+                  }
+                }
+              }
             })).catch((err)=>{
+            this.lyricState = lyricStates.FAILURE;
             console.log(err);
           })
         },
@@ -239,8 +296,11 @@
           this.SET_PLAYING_STATE(true);
         },
         error(){
-          console.log('error 失败 播放下一首')//失败 播放下一首
-          this.playNext();
+          // console.log('error 失败 播放下一首')//失败 播放下一首
+          this.SET_PLAYING_STATE(false);
+          this.audioErrorFlag = true;
+          this.changeAlertFlag(true);
+          this.alertMessage = '音频文件加载失败！'
         },
         updateTime(e){
           this.currentTime = e.target.currentTime;// 获取当前播放时间段
@@ -249,10 +309,10 @@
           if (this.mode === playMode.sequence) {
             this.INCREASE_CURRENT_INDEX();
           }else if (this.mode === playMode.loop) {
+            this.audio.load();
           }else{
             this.SET_CURRENT_INDEX(Math.floor(Math.random()*this.playList.length));
           }
-          this._resetSong();
         },
         playNext(){
           if (this.mode === playMode.random){
@@ -260,7 +320,6 @@
           }else{
             this.INCREASE_CURRENT_INDEX();
           }
-          this._resetSong();
         },
         playPre(){
           if (this.mode === playMode.random){
@@ -268,19 +327,18 @@
           }else{
             this.DECREASE_CURRENT_INDEX();
           }
-          this._resetSong();
         },
         play(){
           console.log("audio能够播放")
+          this.audioErrorFlag = false;
           window.removeEventListener('touchstart', this.forceSafariPlayAudio, false);
         },
         _resetSong(){
-          this.currentTime = 0;//audio播放事件设置为0.
           if (this.currentLyric){
             this.currentLyric.stop();
             this.currentLyric.seek(0);//播放完成后重置歌词
           }
-          this.audio.load();//音乐重新加载
+          this.currentTime = 0;//audio播放时间设置为0.
         },
         handlePercentChange(percent){//处理点击拖动进度条
           this._setCurrentTime((this.currentSong.dt/1000)*percent);
@@ -314,7 +372,9 @@
           this.showPlayListFlag = false;//当前播放列表不显示
         },
         changeRouter(songId,flag=false){//切换歌曲，切换路由
+          this._resetSong();//清空歌曲信息
           if (!this.fullScreen && !flag){//如果不是全屏 不切换路由
+            this.requestData(songId);
             return ;
           }else if (flag){
             this.$router.push({
@@ -329,6 +389,9 @@
         togglePlayList(){
           this.showPlayListFlag = ! this.showPlayListFlag;
         },
+        changeAlertFlag(flag){
+          this.isShowAlert = flag;
+         },
         format(interval=0){//格式化时间
           const minute = this._pad(Math.floor(interval/60));
           const second = this._pad(Math.floor(interval % 60));
@@ -353,7 +416,9 @@
       beforeRouteEnter(to, from, next){//路由进入前
         if (/playMusic/.test(to.path)){
           next(vm=>{
+            console.log("进入music play 路由");
             vm.SET_SONG_ID(vm.$route.params.musicId);
+            vm.requestData(to.params.musicId);
             vm.SET_SHOW_PLAY_FLAG(true);
             vm.SET_FULL_SCREEN(true);
           });
@@ -363,6 +428,7 @@
       },
       beforeRouteUpdate(to, from, next){//路由参数id改变
           console.log("before");
+          this.requestData(to.params.musicId);
           next();
       }
     }
@@ -458,34 +524,69 @@
         line-height: 100%;
         display: flex;
         align-items: center;
+        position: relative;
         &.showImg{
-          padding: 0rem 0.8rem;
+          .show-img-wrapper{
+            /*padding: 0rem 0.4rem;*/
+          }
         }
         .show-img-wrapper{
           width: 100%;
-          padding: 0.4rem;
-          border: 1px solid rgba(255,255,255,.5);
-          border-radius: 50%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: absolute;
+          left: 0;
+          top: 0;
           .img-wrapper{
-            border: 1px solid rgba(255,255,255,.5);
+            border: 1px solid #262626;
+            background-color: #262626;
             border-radius: 50%;
-            animation: rotating 5s linear infinite;
-            &.pause{
-              animation-play-state:paused;
-            }
-            &.runing{
-              animation-play-state:running;
-            }
+            padding: 0.2rem;
             .img{
-              width: 100%;
+              width: 5rem;
+              height: 5rem;
               border-radius: 50%;
+              animation: rotating 8s linear infinite;
+              &.pause{
+                animation-play-state:paused;
+              }
+              &.runing{
+                animation-play-state:running;
+              }
             }
+          }
+          .currentLyric{
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            text-align: center;
+            width: 100%;
+            font-size: 0.32rem;
+            color: #fff;
           }
         }
         .show-lyric-wrapper{
+          position: absolute;
+          left: 0;
+          top: 0;
           width: 100%;
           height: 100%;
           overflow: hidden;
+          .lyric-ok{
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+          }
+          .lyric-error{
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            padding-top: 50%;
+            color: @snColor;
+            font-size: 0.36rem;
+          }
         }
       }
       .bottom{
@@ -647,6 +748,12 @@
         overflow: hidden;
         white-space: nowrap;
       }
+    }
+    .show{
+      opacity: 1!important;
+    }
+    .hide{
+      opacity: 0!important;
     }
   }
 </style>

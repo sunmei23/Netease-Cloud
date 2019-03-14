@@ -17,7 +17,6 @@
       data(){
         return {
           lyricScroll:null,
-          currentLine:0,
           scrollY:0
         }
       },
@@ -26,39 +25,16 @@
             type:Array,
             default:[]
           },
-         currentTime:{
+         currentLine:{
            type:Number,
            default: 0
          }
        },
       watch:{
-        currentTime(newVal){
-          let len = this.lyricLines.length;
-          for (let i=0; i< len; i++){
-            if (i===len-1){
-              if (newVal >= this.lyricLines[i].time/1000) {
-                this.currentLine = i;
-              }
-            }else if(newVal >= this.lyricLines[i].time/1000 && newVal < this.lyricLines[i+1].time/1000){
-              this.currentLine = i;
-            }
-          }
-        },
         currentLine: {
           handler (newVal,oldVal) {
             //实现歌词滚动
-            let ulObj = this.$refs.ulEle;
-            let len = ulObj.children[0].clientHeight;
-            if(newVal > 5){
-              let lineEl = ulObj.children[newVal - 5];
-              this.lyricScroll.scrollToElement(lineEl, 1000);
-            }else if (newVal === 0) {
-              this.lyricScroll.scrollTo(0,0, 1000);
-            }else if (-this.scrollY > len * 5) {
-              this.lyricScroll.scrollTo(0,-newVal*len, 1000);
-            }else{
-              this.lyricScroll.scrollBy(0,-len,1000);
-            }
+             this._scrollLyric(newVal);
           },
           terminate:true
         }
@@ -87,6 +63,21 @@
         _selectLyricPlay(index){
           const time = this.lyricLines[index].time/1000;
           this.$emit('changeCurrentTime',time);
+        },
+        _scrollLyric(index){
+          //实现歌词滚动
+          let ulObj = this.$refs.ulEle;
+          let len = ulObj.children[0].clientHeight;
+          if(index > 5){
+            let lineEl = ulObj.children[index - 5];
+            this.lyricScroll.scrollToElement(lineEl, 1000);
+          }else if (index === 0) {
+            this.lyricScroll.scrollTo(0,0, 1000);
+          }else if (-this.scrollY > len * 5) {
+            this.lyricScroll.scrollTo(0,-index*len, 1000);
+          }else{
+            this.lyricScroll.scrollBy(0,-len,1000);
+          }
         }
       }
     }

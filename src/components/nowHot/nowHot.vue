@@ -8,13 +8,13 @@
         <div v-if=swiperSlides.length class="banner-wrapper">
           <swiper :options="swiperOption" ref="mySwiper">
             <swiper-slide v-for="(slide,index) in swiperSlides" :key="index">
-              <router-link class="banner-item" :to="{name:'playMusic',params:{musicId:slide.targetId}}">
+              <div class="banner-item">
                 <img :src="slide.picUrl" class="banner-img" v-if="index===0 || index===swiperSlides.length-1"/>
                 <div v-lazy-container="{ selector: 'img' }" v-else>
                   <img  :data-src="slide.picUrl+'?param=710y330'" class="banner-img"  data-loading="static/image_335x175.png"
                         data-error="static/image_335x175.png"/>
                 </div>
-              </router-link>
+              </div>
             </swiper-slide>
             <div class="swiper-pagination" slot="pagination"></div>
           </swiper>
@@ -132,7 +132,6 @@
         Promise.all([this.$http.get(api.getBannerList()),this.$http.get(api.getPersonalized()),
           this.$http.get(api.getPersonalizedSong())]).then((lists)=>{
           this.swiperSlides = lists[0].data.banners;
-          console.log(this.swiperSlides);
           this.recommendPlayLists = lists[1].data.playlists;
           this.recommendSongLists = lists[2].data.result;
           this.loadingFlag = false;

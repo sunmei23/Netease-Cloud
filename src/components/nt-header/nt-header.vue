@@ -2,14 +2,27 @@
   <div id="nt-header">
     <div class="logo"></div>
     <div class="middle"></div>
-    <div class="search"><span class="icon-search"></span></div>
+    <div class="search" @click="showSearchPage(true)"><span class="icon-search"></span></div>
+    <search :showFlag="showSearchFlag" @cancelShow="showSearchPage(false)"></search>
   </div>
 
 </template>
 
 <script>
+  import search from '../search/search'
     export default {
-        name: "nt-header"
+        name: "nt-header",
+      data(){
+          return {
+            showSearchFlag:false
+          }
+      },
+      components:{search},
+      methods:{
+        showSearchPage(flag){
+          this.showSearchFlag = flag;
+        }
+      }
     }
 </script>
 

@@ -102,7 +102,6 @@
         },
         _setBoxHeight(){
           let height =  document.documentElement.clientHeight || document.body.clientHeight;
-          console.log(height);
           this.$refs.bsBox.style.maxHeight = height*0.6 + 'px';
         },
         _deleteSingle(index){

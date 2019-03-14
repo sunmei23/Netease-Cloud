@@ -499,9 +499,6 @@
                   overflow: hidden;
                   padding-bottom: 0.1rem;
                   color: #595959;
-                  /*.name{*/
-                    /*font-weight: 600;*/
-                  /*}*/
                   .alias{
                     color: #666;
                   }

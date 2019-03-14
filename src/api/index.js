@@ -69,6 +69,22 @@ export default {
    */
   getSongDetail (id) {
     return `${_baseUrl}/song/detail?ids=${id}`
+  },
+
+  /*
+  搜索功能
+  @param {String} keyWords
+  @param {Number} type
+  /search?keywords= 海阔天空
+   */
+  getSearchResult(keywords,type=1){
+    return `${_baseUrl}/search?keywords=${keywords}&type=${type}`;
+  },
+  /* 获取搜索建议/search/suggest?keywords= 海阔天空&type=mobile*/
+  getSearchSuggest(keywords,type='mobile'){
+    return `${_baseUrl}/search/suggest?keywords=${keywords}&type=${type}`;
   }
+
 }
+
 
