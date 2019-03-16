@@ -18,7 +18,8 @@
                 <span class="alias" v-if="(typeof(currentSong.alia)==='Array') && currentSong.alia.length > 0"> ({{currentSong.alia[0]}})</span>
               </div>
               <div class="singer">
-                <span v-for="(singer,index) in currentSong.ar" v-if="currentSong.ar">{{singer.name}}<i v-if="index != currentSong.ar.length - 1"> / </i></span>
+                <span v-for="(singer,index) in currentSong.ar">{{singer.name}}<i v-if="index != currentSong.ar.length - 1"> / </i></span>
+                <span v-for="(singer,index) in currentSong.artists">{{singer.name}}<i v-if="index != currentSong.artists.length - 1"> / </i></span>
               </div>
             </div>
             <div class="right"></div>
@@ -28,7 +29,7 @@
                            @unShow="changeAlertFlag(false)"></message-alert>
             <div class="show-img-wrapper" :class="showLyric ? 'hide':'show'">
               <div class="img-wrapper" >
-                <img :src="currentSong.al&&currentSong.al.picUrl+'?param=400y400'" class="img"
+                <img :src="currentSong.al&&currentSong.al.picUrl && currentSong.al.picUrl+'?param=400y400'" class="img"
                      :class="playing ? 'running': 'pause'">
               </div>
               <!--显示当前歌词-->
@@ -59,7 +60,7 @@
               <div class="progress-bar-wrapper">
                 <progress-bar :precent="playPercent" @percentChange="handlePercentChange"></progress-bar>
               </div>
-              <span class="time time-r">{{format(currentSong.dt/1000)}}</span>
+              <span class="time time-r">{{format((currentSong.dt|currentSong.duration)/1000)}}</span>
             </div>
             <div class="play-set">
               <div class="methods" @click="SET_PLAY_MODE()">
@@ -92,7 +93,8 @@
             <div class="song-name-wrapper">
               <span class="name">{{currentSong.name}}</span>
               <div class="singer">
-                <span v-for="(singer,index) in currentSong.ar" v-if="currentSong.ar">{{singer.name}}<i v-if="index != currentSong.ar.length - 1"> / </i></span>
+                <span v-for="(singer,index) in currentSong.ar">{{singer.name}}<i v-if="index != currentSong.ar.length - 1"> / </i></span>
+                <span v-for="(singer,index) in currentSong.artists">{{singer.name}}<i v-if="index != currentSong.artists.length - 1"> / </i></span>
               </div>
             </div>
           </div>
@@ -188,7 +190,6 @@
               return;
             }
           this.changeRouter(newVal);
-          this.audioErrorFlag = false;
 
         },
         playing(newVal){
@@ -203,8 +204,8 @@
            })
         },
         currentTime(newVal){
-          this.playPercent = newVal / (this.currentSong.dt/1000);
-          if (this.currentLyric){
+          this.playPercent = newVal / ((this.currentSong.dt | this.currentSong.duration)/1000);
+          if (this.currentLyric && this.lyricState === lyricStates.NORMAL){
             let len = this.currentLyric.lines.length;
             for (let i=0; i< len; i++){
               if (i===len-1){
@@ -229,7 +230,8 @@
           'SET_FULL_SCREEN',
           'SET_PLAYING_STATE',
           'SET_SONG_ID',
-          'SET_SHOW_PLAY_FLAG'
+          'SET_SHOW_PLAY_FLAG',
+          'DELETE_PLAYLIST'
         ]),
         requestData(id){
           if (typeof (id) === "undefined"){
@@ -248,7 +250,8 @@
                   this.ADD_PLAYLIST(res.data.songs[0]);
                   this.SET_CURRENT_INDEX(this.playList.length -1);
                 }else{
-                  this.SET_CURRENT_INDEX(index);
+                   this.DELETE_PLAYLIST({index:index,song:res.data.songs[0]});
+                   this.SET_CURRENT_INDEX(index);
                 }
               }
             }
@@ -373,6 +376,7 @@
         },
         changeRouter(songId,flag=false){//切换歌曲，切换路由
           this._resetSong();//清空歌曲信息
+          this.audioErrorFlag = false;
           if (!this.fullScreen && !flag){//如果不是全屏 不切换路由
             this.requestData(songId);
             return ;
@@ -416,7 +420,6 @@
       beforeRouteEnter(to, from, next){//路由进入前
         if (/playMusic/.test(to.path)){
           next(vm=>{
-            console.log("进入music play 路由");
             vm.SET_SONG_ID(vm.$route.params.musicId);
             vm.requestData(to.params.musicId);
             vm.SET_SHOW_PLAY_FLAG(true);
@@ -427,7 +430,6 @@
         }
       },
       beforeRouteUpdate(to, from, next){//路由参数id改变
-          console.log("before");
           this.requestData(to.params.musicId);
           next();
       }
@@ -560,7 +562,7 @@
           .currentLyric{
             position: absolute;
             left: 0;
-            bottom: 0;
+            bottom: 0.5rem;
             text-align: center;
             width: 100%;
             font-size: 0.32rem;

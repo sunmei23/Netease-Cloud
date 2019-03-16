@@ -58,16 +58,18 @@ const mutations = {
   [types.SET_PLAYLIST](state,list){
      state.playList = list;
   },
-  [types.DELETE_PLAYLIST](state,index){
-    console.log(index);
-     state.playList.splice(index,1);
+  [types.DELETE_PLAYLIST](state,{index,song}){
+    if(typeof(song)=== 'undefined'){
+      state.playList.splice(index,1);
+    }else{
+      state.playList.splice(index,1,song);
+    }
   },
   [types.SET_SEQUENCE_LIST](state,list){
      state.sequenceList = list;
   },
   [types.ADD_PLAYLIST](state,song){
     state.playList.push(song) ;
-    console.log(state.playList);
   },
   [types.SET_CURRENT_INDEX](state,index){
      state.currentIndex = index;
@@ -103,6 +105,7 @@ const mutations = {
 
 const actions = {
   selectPlay({commit, state}, {list, index}) {
+    console.log(list);
     commit(types.SET_SEQUENCE_LIST, list);
     commit(types.SET_PLAYLIST, list);
     commit(types.SET_CURRENT_INDEX, index);

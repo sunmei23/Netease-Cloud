@@ -83,6 +83,11 @@ export default {
   /* 获取搜索建议/search/suggest?keywords= 海阔天空&type=mobile*/
   getSearchSuggest(keywords,type='mobile'){
     return `${_baseUrl}/search/suggest?keywords=${keywords}&type=${type}`;
+  },
+  ///search/hot
+  /* 获取热门搜索*/
+  getHotSearch(){
+    return `${_baseUrl}/search/hot`;
   }
 
 }

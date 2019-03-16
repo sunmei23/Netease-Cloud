@@ -31,6 +31,7 @@
                   <span class="name">{{song.name}}</span>
                   <span class="alias" v-if="song.alias && song.alias.length > 0"> ({{song.alias[0]}})</span>
                   <span v-for="(singer,index) in song.ar" class="singer">- {{singer.name}}<i v-if="index != song.ar.length - 1"> / </i></span>
+                  <span v-for="(singer,index) in song.artists" class="singer">- {{singer.name}}<i v-if="index != song.artists.length - 1"> / </i></span>
                 </div>
               </div>
             </li>
@@ -105,7 +106,11 @@
           this.$refs.bsBox.style.maxHeight = height*0.6 + 'px';
         },
         _deleteSingle(index){
-          this.DELETE_PLAYLIST(index);
+          if (this.playList.length === 1){//删除最后一项
+            this._deleteAll();
+            return;
+          }
+          this.DELETE_PLAYLIST({index:index});
           if (this.currentIndex >= index) {
             this.DECREASE_CURRENT_INDEX();
           }

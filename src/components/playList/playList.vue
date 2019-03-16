@@ -112,7 +112,7 @@
 
 <script>
   import api from '../../api/index.js'
-  import {mapActions,mapMutations} from 'vuex';
+  import {mapActions} from 'vuex';
   import BScroll from 'better-scroll'
     export default {
         name: "playList",
@@ -170,10 +170,6 @@
       methods:{
         ...mapActions([
           'selectPlay'
-        ]),
-        ...mapMutations([
-          'SET_PLAYLIST',
-          'SET_CURRENT_INDEX'
         ]),
         goBack(){
           this.$router.go(-1);
