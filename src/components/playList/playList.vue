@@ -3,38 +3,25 @@
     <div id="playList" ref="playList">
       <nav class="nav" ref="nav">
         <span class="ele-icon-arrow_lift goBack" @click="goBack"></span>
-        <span class="center"><i v-if="height_1 < 0">{{(listProps&&listProps.name) || playListInfo.name}}</i><i v-else>歌单</i></span>
+        <span class="center"><i v-show="height_1_flag">{{(listProps&&listProps.name) || playListInfo.name}}</i><i v-show="!height_1_flag">歌单</i></span>
         <div class="right">
             <span class="more">
               <i class="dot"></i>
               <i class="dot"></i>
+              <i class="dot"></i>
             </span>
         </div>
-        <div class="nav-bg-wrapper">
-          <div class="nav-bg" ref="navBg">
-            <img :src="(listProps&&listProps.coverImgUrl+'?param=400y400') || playListInfo.coverImgUrl+'?param=400y400'" class="nav-img">
+        <div class="nav-bg-wrapper" ref="navBg">
+          <div class="nav-bg" :style="`backgroundImage:url(${listProps&&listProps.coverImgUrl || playListInfo.coverImgUrl}?param=400y400)`">
           </div>
         </div>
       </nav>
-      <div class="header-fixed" v-show="height_2 < 0">
-        <div class="header-content">
-          <div class="Number">
-            <span class="playAll icon-play2"></span>
-          </div>
-          <div class="song border-1px">
-            <span class="name">播放全部</span>
-            <span class="count">(共{{(listProps&&listProps.trackCount) || playListInfo.trackCount}}首)</span>
-            <span class="collect"></span>
-          </div>
-        </div>
-      </div>
-      <div id="playlist-wrapper">
+      <div id="playlist-wrapper" ref="scrollWrapper">
         <div class="playList-content">
           <div class="listDes-wrapper" ref="listDes">
-            <div class="bg">
-              <img :src="(listProps&&listProps.coverImgUrl+'?param=400y400') || playListInfo.coverImgUrl+'?param=400y400'" class="img">
+            <div class="bg" :style="`backgroundImage:url(${playListInfo.coverImgUrl}?param=400y400)`">
+              <!--<img :src="(listProps&&listProps.coverImgUrl+'?param=400y400') || playListInfo.coverImgUrl+'?param=400y400'" class="img">-->
             </div>
-            <div class="bg2"></div>
             <div class="center-wrapper">
               <div class="center-left">
                 <img class="small-img" :src="(listProps&&listProps.coverImgUrl+'?param=400y400') || playListInfo.coverImgUrl+'?param=400y400'"/>
@@ -68,7 +55,7 @@
             </ul>
           </div>
           <div class="main-playlist" ref="mainSite">
-            <div class="header">
+            <div class="header" v-show="!height_2_flag">
               <div class="Number">
                 <span class="playAll icon-play2"></span>
               </div>
@@ -106,6 +93,18 @@
           </div>
         </div>
       </div>
+      <div class="header-fixed" v-show="height_2_flag">
+        <div class="header-content">
+          <div class="Number">
+            <span class="playAll icon-play2"></span>
+          </div>
+          <div class="song border-1px">
+            <span class="name">播放全部</span>
+            <span class="count">(共{{(listProps&&listProps.trackCount) || playListInfo.trackCount}}首)</span>
+            <span class="collect"></span>
+          </div>
+        </div>
+      </div>
     </div>
   </transition>
 </template>
@@ -114,7 +113,9 @@
   import api from '../../api/index.js'
   import {mapActions} from 'vuex';
   import BScroll from 'better-scroll'
-    export default {
+  import {debounce} from "../../common/js/utils";
+
+  export default {
         name: "playList",
         data(){
           return {
@@ -132,24 +133,33 @@
             height_2:0,
             opacityRate:0,
             navHeight:0,
-            topHeight:0
+            topHeight:0,
+            height_1_flag:false,
+            height_2_flag:false,
+            transitionName:'move'
           }
         },
       watch: {
         $route(to,from) {
           if (to.meta.index === 3 && from.meta.index === 0) {//重新进入刷新数据
             this.listProps = this.$route.params.data;
+            this.transitionName = 'move';
           }
         },
-        opacityRate(newVal){
-          this.$refs.navBg.style.opacity = newVal;
+        opacityRate:{
+          handler(newVal){
+            this.$refs.navBg.style.opacity = newVal;
+          },
+          terminate:true
         }
       },
       created(){
+          console.log("playList com created")
          //获得歌单id 请求数据
         let id = this.$route.params.id;
         this.listProps = this.$route.params.data;
         this.$nextTick(()=>{
+          console.log("playList com nextTick");
           this.initPlayListScroll();
         });
       },
@@ -158,12 +168,11 @@
           this.topHeight = this.$refs.listDes.getBoundingClientRect().height;
       },
       activated(){
-        // this.listProps = this.$route.params.data;
-        this.height_1 = this.$refs.authorSite.getBoundingClientRect().top;
-        this.height_2 = this.$refs.mainSite.getBoundingClientRect().top - this.navHeight;
-        if (this.PScroll) {
-          this.PScroll.refresh();
-        }
+        console.log("playList com actived");
+        let h1 = this.$refs.authorSite.getBoundingClientRect().top;
+        this.height_1_flag = h1 < 0;
+        let h2 = this.$refs.mainSite.getBoundingClientRect().top - this.navHeight;
+        this.height_2_flag = h2 < 0;
           //是否需要请求数据，如果需要，并发送请求
         this.requestData(this.$route.params.id);
       },
@@ -196,9 +205,26 @@
             this.dataDownLoadFlag = true;
           }
         },
+        handleScroll(pos){
+          let h1 = this.$refs.authorSite.getBoundingClientRect().top;
+          if (h1<0 && !this.height_1_flag) {
+            this.height_1_flag = true;
+          }else if(h1>=0 && this.height_1_flag){
+            this.height_1_flag = false;
+          }
+          let h2 = this.$refs.mainSite.getBoundingClientRect().top - this.navHeight;
+          if (h2 < 0){
+            this.opacityRate = 1;
+          }else if (-pos.y <= 0) {
+            this.opacityRate = 0;
+          } else if(-pos.y < (this.topHeight)){
+            this.opacityRate = -pos.y / this.topHeight;
+            //this.opacityRate = 0.5;
+          }
+        },
         initPlayListScroll(){
           if(!this.PScroll) {
-            this.PScroll = new BScroll('#playlist-wrapper',{
+            this.PScroll = new BScroll(this.$refs.scrollWrapper,{
               scrollX:false,
               scrollY:true,
               click:true,
@@ -207,19 +233,18 @@
           }else{
             this.PScroll.refresh();
           }
-          this.PScroll.on('scroll',(pos)=>{
-            this.PScrollY = -pos.y;
-            this.height_1 = this.$refs.authorSite.getBoundingClientRect().top;
-            this.height_2 = this.$refs.mainSite.getBoundingClientRect().top - this.navHeight;
-            if (this.height_2 < 0){
-              this.opacityRate = 1;
-            }else if (this.PScrollY <= 0) {
-              this.opacityRate = 0;
-            } else if(this.PScrollY < (this.topHeight)){
-              this.opacityRate = this.PScrollY / this.topHeight;
+          // this.PScroll.on('scroll',(pos)=>{
+          //    this.handleScroll(pos);
+          // })
+          this.PScroll.on('scroll',debounce(this.handleScroll,300,(pos)=>{
+            let h2 = this.$refs.mainSite.getBoundingClientRect().top - this.navHeight;
+            if (h2<0 && !this.height_2_flag) {
+              this.height_2_flag = true;
+            }else if(h2>=0 && this.height_2_flag){
+              this.height_2_flag = false;
             }
-          })
-        }
+          }));
+        },
       }
     }
 </script>
@@ -234,7 +259,10 @@
   width: 100%;
   height: 100%;
   background-color: #fff;
-  &.move-enter-active,&.move-leave-active{
+  &.move-leave-active{
+    transition: all 0.5s linear;
+  }
+  &.move-enter-active{
     transition: all 0.5s linear;
   }
   &.move-enter,&.move-leave-to{
@@ -280,17 +308,27 @@
       width: 100%;
       height:100%;
       overflow: hidden;
-      z-index: -1;
+      background-color: rgba(0,0,0,.3);
+      opacity: 0;
+      z-index: -2;
+      &::after{
+        position: absolute;
+        left: 0;
+        top: 0;
+        display: block;
+        content: '';
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,.5);
+        background-attachment: fixed;
+      }
       .nav-bg{
         width: 200%;
         height:200%;
-        filter: blur(30px);
-        margin: -30px;
-        opacity: 0;
-        .nav-img{
-          width: 100%;
-          height: 5.4rem;
-        }
+        filter: blur(10px);
+        margin: -10px;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
      }
     }
   }
@@ -303,6 +341,7 @@
     text-align: left;
     height: 0.8rem;
     background-color: #e8e8e8;
+    opacity: 1;
     .header-content{
       width: 100%;
       height: 1rem !important;
@@ -340,33 +379,36 @@
   #playlist-wrapper{
     width: 100%;
     height: 100%;
+    z-index: 1;
     .playList-content{
       .listDes-wrapper{
         width: 100%;
         height: 5.4rem;
         position: relative;
         padding: 1.2rem 0.2rem 0.2rem;
+        &::after{
+          position: absolute;
+          left: 0;
+          top: -100%;
+          display: block;
+          content: '';
+          width: 100%;
+          height: 200%;
+          background-color: rgba(0,0,0,.3);
+          background-attachment: fixed;
+          z-index: -1;
+        }
         .bg{
           position: absolute;
           left: 0;
-          top: -100%;
+          top: 0;
           width: 100%;
-          height: 200%;
+          height: 100%;
           z-index: -2;
+          background-attachment: fixed;
+          background-repeat: no-repeat;
+          background-size:100% 100%;
           filter: blur(100px);
-          .img{
-            width: 100%;
-            height: 100%;
-          }
-        }
-        .bg2{
-          position: absolute;
-          left: 0;
-          top: -100%;
-          width: 100%;
-          height: 200%;
-          z-index: -1;
-          background-color: rgba(0,0,0,.3);
         }
         .center-wrapper{
           height: 2.8rem;

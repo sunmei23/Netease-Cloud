@@ -1,5 +1,5 @@
 <template>
-  <transition name="show"
+  <transition name="show" v-bind:css="false"
               v-on:before-enter="beforeEnter"
               v-on:enter="enter"
               v-on:leave="leave">

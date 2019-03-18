@@ -8,7 +8,7 @@
         <!--</div>-->
         <div class="right" @click="_cancel">取消</div>
       </header>
-      <div id="s-sroll-wrapper">
+      <div id="s-sroll-wrapper" ref="sScroll">
         <div class="s-content-wrapper" ref="searchScroll">
           <div class="hot-wrapper" v-if="inputText.length === 0">
             <div class="hot-search-wrapper">
@@ -101,7 +101,6 @@
       },
       created(){
         this._requestHotSearch();
-        console.log(window.localStorage.getItem('music-serach-words'));
         this.$nextTick(()=>{
           this._initSearchScroll();
           if (window.localStorage.getItem('music-serach-words')) {
@@ -147,7 +146,7 @@
         },
         _initSearchScroll(){
           if (!this.searchScroll){
-            this.searchScroll = new BScroll("#s-sroll-wrapper",{
+            this.searchScroll = new BScroll(this.$refs.sScroll,{
               scrollX:false,
               scrollY:true,
               click:true
@@ -173,8 +172,6 @@
           this.$http.get(api.getSearchResult(value)).then((res)=>{
             if (res.data.code === 200) {
               this.searchSongs = res.data.result.songs.slice(0, 6);
-              console.log("search music songs");
-              console.log(this.searchSongs);
               this.searchFlag = true;
             }
           })
@@ -270,6 +267,15 @@
         background-color: rgba(255,255,255,.2);
         padding-left: 0.6rem;
         color: #fff;
+        &::-webkit-input-placeholder{
+          color: #f5f5f5;
+        }
+        &::-moz-placeholder{  //不知道为何火狐的placeholder的颜色是粉红色，怎么改都不行，希望有大牛路过帮忙指点
+          color: #f5f5f5;
+        }
+        &::-ms-input-placeholder{  //由于我的IE刚好是IE9，支持不了placeholder，所以也测试不了(⊙﹏⊙)，有IE10以上的娃可以帮我试试
+          color: #f5f5f5;
+        }
     }
     .search-input{
       position: absolute;

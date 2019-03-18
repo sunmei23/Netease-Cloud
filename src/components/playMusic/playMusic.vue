@@ -1,7 +1,8 @@
 <template>
     <div id="playMusic">
-      <transition name="pullDown">
-        <div class="normal-player" v-show="fullScreen">
+      <!--name="pullDown"-->
+      <transition name="move" >
+        <div class="normal-player" key="normal" v-if="fullScreen">
           <div class="bg-wrapper">
             <div class="bg">
               <img :src="currentSong.al && currentSong.al.picUrl+'?param=400y400'" alt=""/>
@@ -78,31 +79,32 @@
             </div>
           </div>
         </div>
-      </transition>
-      <div class="small-player" v-show="!fullScreen">
-        <div class="border-1px">
-          <div class="right">
-            <div class="playing">
-              <span v-show="playing" class="icon-pause" @click.stop="SET_PLAYING_STATE(false)"></span>
-              <span v-show="!playing" class="icon-play2" @click.stop="SET_PLAYING_STATE(true)"></span>
+        <div class="small-player"  key="small" v-else>
+          <div class="border-1px">
+            <div class="right">
+              <div class="playing">
+                <span v-show="playing" class="icon-pause" @click.stop="SET_PLAYING_STATE(false)"></span>
+                <span v-show="!playing" class="icon-play2" @click.stop="SET_PLAYING_STATE(true)"></span>
+              </div>
+              <div class="play-list" @click.stop="togglePlayList"><span class="icon-list2"></span></div>
             </div>
-            <div class="play-list" @click.stop="togglePlayList"><span class="icon-list2"></span></div>
-          </div>
-          <div class="left" @click="changeRouter(currentSongId,true)">
-            <div class="img"><img :src="currentSong.al && currentSong.al.picUrl+'?param=200y200'"/></div>
-            <div class="song-name-wrapper">
-              <span class="name">{{currentSong.name}}</span>
-              <div class="singer">
-                <span v-for="(singer,index) in currentSong.ar">{{singer.name}}<i v-if="index != currentSong.ar.length - 1"> / </i></span>
-                <span v-for="(singer,index) in currentSong.artists">{{singer.name}}<i v-if="index != currentSong.artists.length - 1"> / </i></span>
+            <div class="left" @click="changeRouter(currentSongId,true)">
+              <div class="img"><img :src="currentSong.al && currentSong.al.picUrl+'?param=200y200'"/></div>
+              <div class="song-name-wrapper">
+                <span class="name">{{currentSong.name}}</span>
+                <div class="singer">
+                  <span v-for="(singer,index) in currentSong.ar">{{singer.name}}<i v-if="index != currentSong.ar.length - 1"> / </i></span>
+                  <span v-for="(singer,index) in currentSong.artists">{{singer.name}}<i v-if="index != currentSong.artists.length - 1"> / </i></span>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </transition>
       <audio :src="mp3Src || (currentSong && currentSong.url)" ref="audio" autoplay @canplay="ready" @error="error"
              @play="play" @timeupdate="updateTime" @ended="end"></audio>
       <play-list @hidePlayList="togglePlayList" @emptyList="goBack" :isShow="showPlayListFlag" ></play-list>
+
     </div>
 </template>
 
@@ -137,7 +139,7 @@
           }
       },
       created(){
-        console.log("created");
+        //console.log("created");
         this.requestData(this.$route.params.musicId);
           this.$nextTick(()=> {
             //请求数据
@@ -291,11 +293,10 @@
               }
             })).catch((err)=>{
             this.lyricState = lyricStates.FAILURE;
-            console.log(err);
           })
         },
         ready(){
-          console.log('ready 音乐开始播放');//音乐开始播放
+          //console.log('ready 音乐开始播放');//音乐开始播放
           this.SET_PLAYING_STATE(true);
         },
         error(){
@@ -332,7 +333,7 @@
           }
         },
         play(){
-          console.log("audio能够播放")
+          //console.log("audio能够播放")
           this.audioErrorFlag = false;
           window.removeEventListener('touchstart', this.forceSafariPlayAudio, false);
         },
@@ -440,13 +441,25 @@
   @import "../../common/less/index";
   #playMusic{
     .normal-player{
-      &.pullDown-leave-active{
-        transition: all 0.5s linear;;
+      &.pullDown-leave-active,&.pullDown-enter-active{
+        transition: all 0.2s 0.5s linear;
       }
-      &.pullDown-leave-to{
+      &.pullDown-leave-to,&.pullDown-enter{
         transform: translate3d(0,100%,0);
       }
-      &.pullDown-leave{
+      &.pullDown-leave,&.pullDown-enter-to{
+        transform: translate3d(0,0,0);
+      }
+      &.move-leave-active{
+        transition: all 0.5s linear;
+      }
+      &.move-enter-active{
+        transition: all 0.5s linear;
+      }
+      &.move-enter,&.move-leave-to{
+        transform: translate3d(100%,0,0);
+      }
+      &.move-enter-to,&.move-leave{
         transform: translate3d(0,0,0);
       }
       width: 100%;
@@ -465,6 +478,7 @@
         height: 100%;
         overflow: hidden;
         z-index: -1;
+        background-attachment: fixed;
         .bg{
           width: 150%;
           height: 150%;
@@ -498,7 +512,7 @@
           &.left{
             flex: 1;
             .goBack{
-              transform: rotate(-90deg);
+              /*transform: rotate(-90deg);*/
               display: inline-block;
               height: 0.8rem;
               line-height: 0.8rem;

@@ -13,6 +13,8 @@ import VueX from 'vuex'
 import store from './vuex/store'
 //引入公共JS函数
 import {sleep,getFontSize} from './common/js/utils'
+import FastClick from 'fastclick'
+FastClick.attach(document.body);
 
 Vue.use(VueX);
 Vue.use(VueLazyload,{

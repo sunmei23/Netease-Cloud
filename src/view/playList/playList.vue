@@ -65,18 +65,22 @@
           'mode'
         ])
       },
-      watch:{
-        isShow(newVal){
-          if (newVal && this.listScroll){
-            this.listScroll.refresh();
-          }
-        }
-      },
       created(){
         this.$nextTick(()=>{
           this._setBoxHeight();
           this. _initListScroll();
         })
+      },
+      watch:{
+        isShow(newVal){
+          if (newVal){
+            if (this.listScroll && !this.listScroll.hasVerticalScroll){
+              setTimeout(()=>{
+                this.listScroll.refresh();
+              },50)
+            }
+          }
+        }
       },
       methods:{
         ...mapMutations([
@@ -92,7 +96,7 @@
         },
         _initListScroll(){
           if (!this.listScroll) {
-            this.listitem = new BSCroll("#bsWrapper",{
+            this.listScroll = new BSCroll(this.$refs.bsBox,{
               scrollX:false,
               scrollY:true,
               click:true
