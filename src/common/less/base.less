@@ -1,11 +1,21 @@
 .clearfix{
   display: inline-block;
+  *zoom:1;
   &:after{
     content: '';
     height: 0;
     clear: both;
     visibility: hidden;
   }
+}
+.bold{
+  font-weight: bold;
+}
+.f-left{
+  float: left;
+}
+.f-right{
+  float: right;
 }
 @media (min-device-pixel-ratio: 1.5),(-webkit-device-pixel-ratio: 1.5) {
   .border-1px{

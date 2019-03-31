@@ -3,7 +3,7 @@
     <div id="playList" ref="playList">
       <nav class="nav" ref="nav">
         <span class="ele-icon-arrow_lift goBack" @click="goBack"></span>
-        <span class="center"><i v-show="height_1_flag">{{(listProps&&listProps.name) || playListInfo.name}}</i><i v-show="!height_1_flag">歌单</i></span>
+        <span class="center"><i v-show="height_1_flag">{{(listProps&&listProps.name) || playListInfo.name}}</i><i v-show="!height_1_flag">{{titleName}}</i></span>
         <div class="right">
             <span class="more">
               <i class="dot"></i>
@@ -136,15 +136,22 @@
             topHeight:0,
             height_1_flag:false,
             height_2_flag:false,
-            transitionName:'move'
+            transitionName:'move',
+            titleName:'歌单'
           }
         },
       watch: {
-        $route(to,from) {
-          if (to.meta.index === 3 && from.meta.index === 0) {//重新进入刷新数据
-            this.listProps = this.$route.params.data;
-            this.transitionName = 'move';
-          }
+        $route:{
+          handler(to,from) {
+            if (to.meta.index === 3 && from.meta.index === 0) {//重新进入刷新数据
+              this.listProps = this.$route.params.data;
+              this.transitionName = 'move';
+              this.titleName = "歌单";
+            }else if (to.meta.index === 3 && from.meta.index === 1) {//从排行榜过来
+              this.titleName = "排行榜";
+            }
+          },
+          immediate: true
         },
         opacityRate:{
           handler(newVal){
@@ -169,6 +176,7 @@
       },
       activated(){
         console.log("playList com actived");
+        this.listProps = this.$route.params.data;
         let h1 = this.$refs.authorSite.getBoundingClientRect().top;
         this.height_1_flag = h1 < 0;
         let h2 = this.$refs.mainSite.getBoundingClientRect().top - this.navHeight;
@@ -345,8 +353,8 @@
     .header-content{
       width: 100%;
       height: 1rem !important;
-      border-radius: 0.4rem 0.4rem 0rem 0rem;
-      padding: 0.2rem 0.2rem 0.0rem;
+      border-radius: 0.4rem 0.4rem 0 0;
+      padding: 0.2rem 0.2rem 0;
       background-color: #fff;
       .header-style();
     }
@@ -412,7 +420,7 @@
         }
         .center-wrapper{
           height: 2.8rem;
-          padding: 0.1rem 0rem;
+          padding: 0.1rem 0;
           .center-left{
             float: left;
             width: 2.6rem;
@@ -434,7 +442,7 @@
           .center-right{
             text-align: left;
             height: 2.6rem;
-            padding: 0.4rem 0rem;
+            padding: 0.4rem 0;
             .title{
               color: #fff;
               font-size: 0.32rem;
@@ -482,7 +490,7 @@
       }
       .main-playlist {
         background-color: #fff;
-        border-radius: 0.4rem 0.4rem 0rem 0rem;
+        border-radius: 0.4rem 0.4rem 0 0;
         width: 100%;
         padding: 0.2rem;
         text-align: left;

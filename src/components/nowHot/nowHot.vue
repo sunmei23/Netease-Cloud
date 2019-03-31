@@ -19,6 +19,28 @@
             <div class="swiper-pagination" slot="pagination"></div>
           </swiper>
         </div>
+        <div class="menu-wrapper">
+          <div class="menu-item">
+            <div class="img-wrapper"><img class="menu-img" src="static/suggest.png"/></div>
+            <span class="text">每日推荐</span>
+          </div>
+          <div class="menu-item">
+            <div class="img-wrapper"><img class="menu-img" src="static/songlist.png"/></div>
+            <span class="text">歌单</span>
+          </div>
+          <router-link class="menu-item" :to="{name:'top'}">
+            <div class="img-wrapper"><img class="menu-img" src="static/top.png"/></div>
+            <span class="text">排序榜</span>
+          </router-link>
+          <router-link class="menu-item" :to="{name:'top'}">
+            <div class="img-wrapper"><img class="menu-img" src="static/radio.png"/></div>
+            <span class="text">电台</span>
+          </router-link>
+          <div class="menu-item">
+            <div class="img-wrapper"><img class="menu-img" src="static/nowPlay.png"/></div>
+            <span class="text">直播</span>
+          </div>
+        </div>
         <div class="nh-content-wrapper">
           <section class="songList-wrapper">
             <div class="flag">
@@ -113,7 +135,7 @@
               this.$http.get(api.getPersonalizedSong())]).then((lists)=>{
               this.swiperSlides = lists[0].data.banners;
               this.swiper.slideNext();
-              this.recommendPlayLists = lists[1].data.playlists;
+              this.recommendPlayLists = lists[1].data.playlists.slice(0,9);
               this.recommendSongLists = lists[2].data.result;
               this.$root.eventHub.$emit('answerUpdateResult', true);
             }).catch((err)=>{
@@ -132,7 +154,7 @@
         Promise.all([this.$http.get(api.getBannerList()),this.$http.get(api.getPersonalized()),
           this.$http.get(api.getPersonalizedSong())]).then((lists)=>{
           this.swiperSlides = lists[0].data.banners;
-          this.recommendPlayLists = lists[1].data.playlists;
+          this.recommendPlayLists = lists[1].data.playlists.slice(0,9);
           this.recommendSongLists = lists[2].data.result;
           this.loadingFlag = false;
         }).catch((err)=>{
@@ -221,6 +243,32 @@
       border-radius: 10px;
       width: 100%;
       height: 100%;
+    }
+  }
+  .menu-wrapper{
+    display: flex;
+    padding: 0.4rem 0rem;
+    border-bottom: 1px solid #f5f5f5;
+    justify-content: space-around;
+    .menu-item{
+      display: block;
+      width: 1rem;
+      height: 1.4rem;
+      .img-wrapper{
+        background-color: @snColor;
+        padding: 0.25rem;
+        border-radius: 100%;
+        width: 1rem;
+        height: 1rem;
+        margin-bottom: 0.1rem;
+        .menu-img{
+          width: 100%;
+          height: 100%;
+        }
+      }
+      .text{
+        font-size: 0.24rem;
+      }
     }
   }
   .nh-content-wrapper{

@@ -34,23 +34,7 @@ export default new Router({
           meta:{
             index:0
           }
-        },
-        {
-          path: 'top',
-          name: 'top',
-          component: Top,
-          meta:{
-            index:1
-          }
-        },
-        {
-          path: 'hotSinger',
-          name: 'hotSinger',
-          component: HotSinger,
-          meta:{
-            index:2
-          }
-        },
+        }
       ],
     },
     {
@@ -73,6 +57,25 @@ export default new Router({
       },
       meta:{
         index:4
+      }
+    },
+    {
+      path: '/top',
+      name: 'top',
+      components:{
+        default:Top,
+        music:PlayMusic
+      },
+      meta:{
+        index:1
+      }
+    },
+    {
+      path: 'hotSinger',
+      name: 'hotSinger',
+      component: HotSinger,
+      meta:{
+        index:2
       }
     }
   ]

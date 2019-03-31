@@ -2,16 +2,16 @@
     <div id="home">
       <div ref="header" class="header-wrapper">
         <nt-header></nt-header>
-        <div class="link-tab-wrapper">
-          <div class="link-wrapper">
-            <router-link :to="{name:'nowHot'}">推荐</router-link>
-            <router-link :to="{name:'top'}">排行榜</router-link>
-            <router-link :to="{name:'hotSinger'}">热门歌手</router-link>
-          </div>
-          <span class="tab-link-highLight" ref="highLight">
-      <span class="content"></span>
-    </span>
-        </div>
+        <!--<div class="link-tab-wrapper">-->
+          <!--<div class="link-wrapper">-->
+            <!--<router-link :to="{name:'nowHot'}">推荐</router-link>-->
+            <!--<router-link :to="{name:'top'}">排行榜</router-link>-->
+            <!--<router-link :to="{name:'hotSinger'}">热门歌手</router-link>-->
+          <!--</div>-->
+          <!--<span class="tab-link-highLight" ref="highLight">-->
+      <!--<span class="content"></span>-->
+    <!--</span>-->
+        <!--</div>-->
       </div>
       <div  class="main-content" ref="main">
         <div class="content-wrapper">
@@ -75,7 +75,7 @@
       //监测路由变化
       $route(newVal,oldVal){
         this.linkIndex = newVal.meta.index;
-        this._setHighLightOffset();
+       // this._setHighLightOffset();
       },
       mainScrollY(newVal,oldVal){
         let threshold = PULL_DOWN_HEIGHT * this.CurrentHtmlFontSize;
@@ -94,7 +94,7 @@
       });
     },
     mounted(){
-      this._setHighLightOffset();
+      //this._setHighLightOffset();
     },
     methods:{
       _setHighLightOffset(){
@@ -245,7 +245,8 @@
     .main-content{
       position: fixed;
       left: 0;
-      top: 1.66rem;
+      /*top: 1.66rem;*/
+      top: 0.88rem;
       padding-bottom: 1.08rem;
       width: 100%;
       height: 100%;

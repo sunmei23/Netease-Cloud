@@ -1,4 +1,4 @@
-const _baseUrl = 'https://musicapi.leanapp.cn'
+const _baseUrl = 'http://musicapi.leanapp.cn'
 // const _baseUrl2 = 'https://api.imjad.cn/cloudmusic/'
 export default {
   /**
@@ -48,7 +48,7 @@ export default {
    * @param {Number} id
    */
   getSong (id) {
-    return `${_baseUrl}/song/url?id=${id}`
+    return `${_baseUrl}/music/url?id=${id}`
   },
   /**
    * 获取歌单详情
@@ -88,8 +88,11 @@ export default {
   /* 获取热门搜索*/
   getHotSearch(){
     return `${_baseUrl}/search/hot`;
+  },
+  /*榜单*/
+  getTopList(){
+    return `${_baseUrl}/toplist`;
   }
-
 }
 
 

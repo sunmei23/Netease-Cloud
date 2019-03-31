@@ -151,7 +151,7 @@
                   }
                 }else{
                   alert("离开");
-                  this.audio.pause();
+                  //this.audio.pause();
                 }
               }
             });
@@ -265,13 +265,15 @@
         },
         _getMusicMp3(id){
           // this.$http.get(`https://api.bzqll.com/music/netease/url?key=579621905&id=${id}&br=999000`)
-          this.mp3Src= `https://music.163.com/song/media/outer/url?id=${id}.mp3`;
-          // this.$http.get(api.getSong(id))
-          //   .then((res)=>{
-          //     this.mp3Src = res.request.responseURL;
-          //   }).catch((err)=>{
-          //   console.log(err);
-          // });
+          //this.mp3Src= `https://music.163.com/song/media/outer/url?id=${id}.mp3`;
+          this.$http.get(api.getSong(id))
+            .then((res)=>{
+              if (res.data.code === 200){
+                this.mp3Src = res.data.data[0].url;
+              }
+          }).catch((err)=>{
+            console.log(err);
+          });
         },
         _getLyric(id){
           // this.$http.get(`https://api.bzqll.com/music/netease/lrc?key=579621905&id=${id}`)
