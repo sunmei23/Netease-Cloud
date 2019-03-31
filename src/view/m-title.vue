@@ -1,5 +1,5 @@
 <template>
-    <div id="title">
+    <div id="mtitle">
         <span class="bold type">
           <slot name="name"></slot>
         </span>
@@ -9,13 +9,13 @@
 
 <script>
     export default {
-        name: "title"
+        name: "mtitle"
     }
 </script>
 
 <style scoped lang="less">
   @import "../common/less/mixin";
-  #title{
+  #mtitle{
       width: 100%;
       height: 1.0rem;
       line-height: 1.2rem;
