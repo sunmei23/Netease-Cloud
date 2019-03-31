@@ -502,6 +502,7 @@
           height: 100%;
           padding-top: 2.8rem;
           text-align: center;
+
           .icon-spinner6 {
             display: block;
             color: #000;
