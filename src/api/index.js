@@ -1,4 +1,4 @@
-const _baseUrl = 'http://musicapi.leanapp.cn'
+const _baseUrl = 'https://musicapi.leanapp.cn'
 // const _baseUrl2 = 'https://api.imjad.cn/cloudmusic/'
 export default {
   /**
